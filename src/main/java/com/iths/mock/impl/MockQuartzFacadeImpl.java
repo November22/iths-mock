@@ -9,6 +9,7 @@ import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.Map;
 
 /**
  * @author sen.huang
@@ -42,6 +43,12 @@ public class MockQuartzFacadeImpl implements MockQuartzFacade {
         return false;
     }
 
+    public String insert(ScheduleJobDTO dto){
+        Map<String, String> insert = new UserService().insert();
+        return insert.get("id");
+    }
+
+
     /**
      * 用来Mock私有
      * @param num
@@ -62,3 +69,5 @@ public class MockQuartzFacadeImpl implements MockQuartzFacade {
 
 
 }
+
+

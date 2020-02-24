@@ -1,6 +1,7 @@
 package com.iths.mock;
 
 import com.iths.mock.impl.MockQuartzFacadeImpl;
+import com.iths.mock.impl.UserService;
 import com.iths.mock.untils.MockUtils;
 import com.iths.quartz.dto.ScheduleJobDTO;
 import com.iths.quartz.facade.ScheduleJobFacade;
@@ -14,9 +15,10 @@ import org.powermock.api.mockito.PowerMockito;
 import org.powermock.core.classloader.annotations.PowerMockIgnore;
 import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
-import org.springframework.test.web.servlet.MockMvc;
 
 import java.io.File;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * PowerMock 使用案例
@@ -26,7 +28,7 @@ import java.io.File;
  */
 @RunWith(PowerMockRunner.class) // 告诉JUnit使用PowerMockRunner进行测试
 // 所有需要测试的类列在此处，适用于模拟final类或有final, private, static, native方法的类，mockNew对象时，必须把提前准备
-@PrepareForTest({MockUtils.class, MockQuartzFacadeImpl.class})
+@PrepareForTest({MockUtils.class, MockQuartzFacadeImpl.class, UserService.class})
 @PowerMockIgnore("javax.management.*") //为了解决使用powermock后，提示classloader错误
 public class MockFacadeTest {
 
@@ -86,11 +88,35 @@ public class MockFacadeTest {
     @Test
     public void testMockPrivate() throws Exception {
         MockQuartzFacadeImpl spy = PowerMockito.spy(mockQuartzFacade);
-
         PowerMockito.when(spy, "mockPrivate", ArgumentMatchers.anyInt()).thenReturn(true);
 
         Assert.assertTrue(spy.mockPrivate(3));
-
     }
 
+
+    /**
+     * Mock final
+     * @throws Exception
+     */
+    @Test
+    public void testMockFinal() throws Exception {
+        UserService mockUserService = PowerMockito.mock(UserService.class);
+        PowerMockito.whenNew(UserService.class).withNoArguments().thenReturn(mockUserService);
+        Map<String, String> map = new HashMap<>();
+        map.put("id","9527");
+        PowerMockito.when(mockUserService.insert()).thenReturn(map);
+
+        Assert.assertEquals("9527", mockQuartzFacade.insert(new ScheduleJobDTO()));
+    }
+
+    /**
+     * Mock Native
+     */
+    @Test
+    public void testMockNative(){
+        PowerMockito.mockStatic(System.class);
+        PowerMockito.when(System.currentTimeMillis()).thenReturn(9527L);
+
+        Assert.assertEquals(9527, System.currentTimeMillis());
+    }
 }
